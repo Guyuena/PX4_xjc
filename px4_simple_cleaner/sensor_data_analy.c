@@ -78,12 +78,45 @@ static inline uint32_t my_ntohl(uint32_t net_long) {
            ((net_long & 0xFF000000) >> 24);
 }
 
+// int parse_sensor_data(const uint8_t *received_data, SensorData *new_data) {
+//     if (received_data[1] < 60) {
+//         fprintf(stderr, "Received data is too short!\n");
+//         return -1;
+//     }
+
+//     uint16_t frame_len;
+//     memcpy(&frame_len, received_data, sizeof(uint16_t));
+//     new_data->frame_len = my_ntohs(frame_len);
+
+//     new_data->ick = received_data[2];
+//     new_data->cmd = received_data[3];
+
+//     uint32_t left_encoder, right_encoder, pose_X, pose_Y, pose_theta;
+//     memcpy(&left_encoder, received_data + 4, sizeof(uint32_t));
+//     memcpy(&right_encoder, received_data + 8, sizeof(uint32_t));
+//     memcpy(&pose_X, received_data + 20, sizeof(uint32_t));
+//     memcpy(&pose_Y, received_data + 24, sizeof(uint32_t));
+//     memcpy(&pose_theta, received_data + 28, sizeof(uint32_t));
+
+//     new_data->left_encoder = my_ntohl(left_encoder);
+//     new_data->right_encoder = my_ntohl(right_encoder);
+//     new_data->pose_X = my_ntohl(pose_X);
+//     new_data->pose_Y = my_ntohl(pose_Y);
+//     new_data->pose_theta = my_ntohl(pose_theta);
+
+//     return 0;
+// }
+
+
+
+// 解析传感器数据的函数
 int parse_sensor_data(const uint8_t *received_data, SensorData *new_data) {
     if (received_data[1] < 60) {
         fprintf(stderr, "Received data is too short!\n");
         return -1;
     }
 
+    // 解析并转换字节序
     uint16_t frame_len;
     memcpy(&frame_len, received_data, sizeof(uint16_t));
     new_data->frame_len = my_ntohs(frame_len);
@@ -91,6 +124,7 @@ int parse_sensor_data(const uint8_t *received_data, SensorData *new_data) {
     new_data->ick = received_data[2];
     new_data->cmd = received_data[3];
 
+    // 解析并转换 32 位数据
     uint32_t left_encoder, right_encoder, pose_X, pose_Y, pose_theta;
     memcpy(&left_encoder, received_data + 4, sizeof(uint32_t));
     memcpy(&right_encoder, received_data + 8, sizeof(uint32_t));
@@ -104,9 +138,53 @@ int parse_sensor_data(const uint8_t *received_data, SensorData *new_data) {
     new_data->pose_Y = my_ntohl(pose_Y);
     new_data->pose_theta = my_ntohl(pose_theta);
 
-    return 0;
-}
+    // 解析并转换 16 位数据
+    new_data->zero_0 = 0;  // 置0
+    uint16_t temp_pose_theta_0;
+    memcpy(&temp_pose_theta_0, received_data + 14, sizeof(uint16_t));
+    new_data->pose_theta_0 = my_ntohs(temp_pose_theta_0);
 
+    new_data->zero_1 = 0;  // 置0
+    new_data->zero_2 = 0;  // 置0
+
+    // 解析其他字段
+    new_data->Pix_DX = 0;  // 置0
+    new_data->Pix_DY = 0;  // 置0
+
+
+    // 使用 memcpy 安全地读取 16 位数据
+    uint16_t irwall_left, irwall_right;
+    memcpy(&irwall_left, received_data + 36, sizeof(uint16_t));
+    memcpy(&irwall_right, received_data + 38, sizeof(uint16_t));
+
+    // 转换字节序并赋值
+    new_data->IrWall_left = my_ntohs(irwall_left);
+    new_data->IrWall_right = my_ntohs(irwall_right);
+
+    new_data->Bumps_triggered = received_data[40];
+    new_data->Cliff_triggered = received_data[41];
+    new_data->magnet_triggered = received_data[42];
+    new_data->zero_3 = 0;  // 置0
+    new_data->dustbox_installed = received_data[44];
+    new_data->IrBump_Left = 0;  // 置0
+    new_data->IrBump_Middle = 0;  // 置0
+    new_data->IrBump_Right = 0;  // 置0
+
+    new_data->nec_right_front_dock = received_data[51];
+    new_data->nec_left_front_dock = received_data[52];
+    new_data->nec_left_dock = received_data[53];
+    new_data->nec_right_dock = received_data[54];
+    new_data->nec_left_back_dock = 0;  // 置0
+    new_data->nec_right_back_dock = 0;  // 置0
+    new_data->charge_access = received_data[57];
+    new_data->material = received_data[58];
+
+    uint32_t time_tick;
+    memcpy(&time_tick, received_data + 59, sizeof(uint32_t));
+    new_data->Time_tick = my_ntohl(time_tick);  // 转换字节序
+
+    return 0;  // 成功返回0
+}
 
 
 
