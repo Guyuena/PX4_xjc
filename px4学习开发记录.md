@@ -6777,6 +6777,112 @@ Connections:
 
 
 
+# ros2  与 px4 
+
+https://px-4.com/main/en/ros/ros2_comm.html
+
+![image-20250104145154214](./images/image-20250104145154214.png)
+
+
+
+### 安装 Micro XRCE-DDS
+
+```bash
+git clone https://github.com/eProsima/Micro-XRCE-DDS-Agent.git
+cd Micro-XRCE-DDS-Agent
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+sudo ldconfig /usr/local/lib/
+```
+
+
+
+https://blog.csdn.net/Zecet/article/details/130567392
+
+### 配置
+
+在QGC地面站中，设置运行client的串口，将UXRCE_DDS_CFG设置为px4与机载计算机连接的口（如我这里用的是TELEM1口，就设定为TELEM1
+
+物理上使用的uart2
+
+<img src="./images/image-20250104180033903.png" alt="image-20250104180033903" style="zoom:50%;" />
+
+<img src="./images/image-20250104180135207.png" alt="image-20250104180135207" style="zoom: 67%;" />
+
+将Mavlink端口Disable（设置为0）。这里需要让你之前设定为UXRCE_DDS_CFG的串口不配置为MAVLINK的端口，比如我前面用了TELEM1，这里就不能再设置TELEM1作为MAVLINK端口。
+
+![image-20250104180229476](./images/image-20250104180229476.png)
+
+修改对应接口的波特率，我这里使用的是TELEM1，对应的参数就是SER_TEL1_BAUD
+
+
+
+
+
+
+
+
+
+
+
+**sudo MicroXRCEAgent serial --dev /dev/ttyUSB0 -b 115200**
+
+### 测试
+
+```bash
+jc@jc:~/Micro-XRCE-DDS-Agent/build$ sudo MicroXRCEAgent serial --dev /dev/ttyUSB0 -b 115200
+[1735984602.676677] info     | TermiosAgentLinux.cpp | init                     | running...             | fd: 3
+[1735984602.690403] info     | Root.cpp           | set_verbose_level        | logger setup           | verbose_level: 4
+[1735984602.828701] info     | Root.cpp           | create_client            | create                 | client_key: 0x00000001, session_id: 0x81
+[1735984602.828828] info     | SessionManager.hpp | establish_session        | session established    | client_key: 0x00000001, address: 1
+[1735984602.854821] info     | ProxyClient.cpp    | create_participant       | participant created    | client_key: 0x00000001, participant_id: 0x001(1)
+[1735984602.878114] info     | ProxyClient.cpp    | create_topic             | topic created          | client_key: 0x00000001, topic_id: 0x800(2), participant_id: 0x001(1)
+[1735984602.878397] info     | ProxyClient.cpp    | create_subscriber        | subscriber created     | client_key: 0x00000001, subscriber_id: 0x800(4), participant_id: 0x001(1)
+[1735984602.879329] info     | ProxyClient.cpp    | create_datareader        | datareader created     | client_key: 0x00000001, datareader_id: 0x800(6), subscriber_id: 0x800(4)
+[1735984602.923396] info     | ProxyClient.cpp    | create_topic             | topic created          | client_key: 0x00000001, topic_id: 0x801(2), participant_id: 0x001(1)
+[1735984602.923545] info     | ProxyClient.cpp    | create_subscriber        | subscriber created     | client_key: 0x00000001, subscriber_id: 0x801(4), participant_id: 0x001(1)
+[1735984602.924493] info     | ProxyClient.cpp    | create_datareader        | datareader created     | client_key: 0x00000001, datareader_id: 0x801(6), subscriber_id: 0x801(4)
+[1735984602.965667] info     | ProxyClient.cpp    | create_topic             | topic created          | client_key: 0x00000001, topic_id: 0x802(2), participant_id: 0x001(1)
+[1735984602.965819] info     | ProxyClient.cpp    | create_subscriber        | subscriber created     | client_key: 0x00000001, subscriber_id: 0x802(4), participant_id: 0x001(1)
+[1735984602.966671] info     | ProxyClient.cpp    | create_datareader        | datareader created     | client_key: 0x00000001, datareader_id: 0x802(6), subscriber_id: 0x802(4)
+[1735984602.993376] info     | ProxyClient.cpp    | create_topic             | topic created          | client_key: 0x00000001, topic_id: 0x803(2), participant_id: 0x001(1)
+[1735984602.993509] info     | ProxyClient.cpp    | create_subscriber        | subscriber created     | client_key: 0x00000001, subscriber_id: 0x803(4), participant_id: 0x001(1)
+[1735984602.994130] info     | ProxyClient.cpp    | create_datareader        | datareader created     | client_key: 0x00000001, datareader_id: 0x803(6), subscriber_id: 0x803(4)
+[1735984603.021750] info     | ProxyClient.cpp    | create_topic             | topic created          | client_key: 0x00000001, topic_id: 0x804(2), participant_id: 0x001(1)
+[1735984603.021882] info     | ProxyClient.cpp    | create_subscriber        | subscriber created     | client_key: 0x00000001, subscriber_id: 0x804(4), participant_id: 0x001(1)
+[1735984603.029029] info     | ProxyClient.cpp    | create_datareader        | datareader created     | client_key: 0x00000001, datareader_id: 0x804(6), subscriber_id: 0x804(4)
+[1735984603.054968] info     | ProxyClient.cpp    | create_topic             | topic created          | client_key: 0x00000001, topic_id: 0x805(2), participant_id: 0x001(1)
+[1735984603.055117] info     | ProxyClient.cpp    | create_subscriber        | subscriber created     | client_key: 0x00000001, subscriber_id: 0x805(4), participant_id: 0x001(1)
+```
+
+
+
+    打开终端，建立一个新的工作区
+
+```bash
+
+mkdir -p ~/ws_ros/src/
+cd ~/ws_ros/src/
+git clone https://github.com/PX4/px4_msgs.git
+git clone https://github.com/PX4/px4_ros_com.git
+cd ..
+source /opt/ros/foxy/setup.bash
+colcon build
+source install/setup.bash
+ros2 run px4_ros_com sensor_combined_listener 
+```
+
+![image-20250104181150312](./images/image-20250104181150312.png)
+
+
+
+
+
+
+
 
 
 
