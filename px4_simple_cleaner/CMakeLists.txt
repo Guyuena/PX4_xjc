@@ -34,10 +34,10 @@ px4_add_module(
 	MODULE examples__ppx4_simple_cleaner
 	MAIN px4_simple_cleaner
 	SRCS
-		px4_simple_cleaner.c
-		receive_data.h
+		px4_simple_cleaner.cpp
+		# receive_data.h
 		sensor_data_analy.h
-		receive_data.c
-		sensor_data_analy.c
+		# receive_data.c
+		sensor_data_analy.cpp
 	DEPENDS
 	)
