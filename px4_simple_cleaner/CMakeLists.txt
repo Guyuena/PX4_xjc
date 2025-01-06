@@ -35,9 +35,7 @@ px4_add_module(
 	MAIN px4_simple_cleaner
 	SRCS
 		px4_simple_cleaner.cpp
-		# receive_data.h
 		sensor_data_analy.h
-		# receive_data.c
 		sensor_data_analy.cpp
 	DEPENDS
 	)

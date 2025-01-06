@@ -17,48 +17,50 @@ sem_t data_mutex;
 
 
 int parse_key_status(const uint8_t *received_data, KEYSTATUS *new_data) {
-    if (received_data[1] < 5) {
+    if (received_data[3] < 5) {
         fprintf(stderr, "Data length is insufficient.\n");
         return 1;
     }
-    new_data->key_cmd = received_data[4];
+    new_data->key_cmd = received_data[6];
     return 0;
 }
 
 int parse_charge_status(const uint8_t *received_data, CHARGESTATUS *new_data) {
-    if (received_data[1] < 6) {
+    if (received_data[3] < 6) {
         fprintf(stderr, "Data length is insufficient.\n");
         return 1;
     }
-    new_data->charge_status = received_data[4];
-    new_data->charge_type = received_data[5];
+    new_data->charge_status = received_data[6];
+    new_data->charge_type = received_data[7];
     return 0;
 }
 
 int parse_power_precent(const uint8_t *received_data, POWERPRECENT *new_data) {
-    if (received_data[1] < 5) {
+    if (received_data[3] < 5) {
         fprintf(stderr, "Data length is insufficient.\n");
         return 1;
     }
-    new_data->precent = received_data[4];
+    printf("Power precent: %d\n", received_data[6]);
+    new_data->precent = received_data[6];
     return 0;
 }
 
 int parse_fan_tank_status(const uint8_t *received_data, FAN_TANK_STATUS *new_data) {
-    if (received_data[1] < 5) {
+    if (received_data[3] < 5) {
         fprintf(stderr, "Data length is insufficient.\n");
         return 1;
     }
-    new_data->fan_tank_status = received_data[4];
+    new_data->fan_tank_status = received_data[6];
     return 0;
 }
 
 int parse_warning_status(const uint8_t *received_data, WARNING *new_data) {
-    if (received_data[1] < 5) {
+    if (received_data[3] < 5) {
         fprintf(stderr, "Data length is insufficient.\n");
         return 1;
     }
-    new_data->warning_value = received_data[4];
+    printf("Warning status: %d\n", received_data[6]);
+    new_data->warning_value = received_data[6];
     return 0;
 }
 
@@ -216,7 +218,7 @@ int parse_sensor_data(const uint8_t *received_data, SensorData *new_data) {
     new_data->Time_tick = my_ntohl(time_tick);  // 转换字节序
 
 
-    print_sensor(new_data);
+    // print_sensor(new_data);
     return 0;  // 成功返回0
 }
 

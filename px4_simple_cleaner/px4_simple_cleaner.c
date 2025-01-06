@@ -530,19 +530,30 @@ void* data_processing_thread(void* arg) {
             parse_sensor_data(buffer, &new_data);
         }
         if (buffer[5] == 0x04) {
-            printf("Processing received data frame:  0x04 \n");
+            // printf("Processing received data frame:  0x04 \n");
+            KEYSTATUS new_key_status;
+            parse_key_status(buffer, &new_key_status);
+
         }
         if (buffer[5] == 0x05) {
-            printf("Processing received data frame:  0x05 \n");
+            CHARGESTATUS new_charge_status;
+            parse_charge_status(buffer, &new_charge_status);
         }
+
         if (buffer[5] == 0x06) {
-            printf("Processing received data frame:  0x06 \n");
+
+            POWERPRECENT new_power_precent;
+            parse_power_precent(buffer, &new_power_precent);
         }
         if (buffer[5] == 0x07) {
-            printf("Processing received data frame:  0x07 \n");
+            FAN_TANK_STATUS new_fan_tank_status;
+            parse_fan_tank_status(buffer, &new_fan_tank_status);
+
         }
         if (buffer[5] == 0x08) {
-            printf("Processing received data frame:  0x08 \n");
+            WARNING new_warning;
+            parse_warning_status(buffer, &new_warning);
+
         }
 
 
@@ -557,6 +568,7 @@ void* data_processing_thread(void* arg) {
     }
     return NULL;
 }
+
 
 // 数据接收线程
 void* data_receive_thread(void* arg) {
